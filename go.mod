@@ -1,1 +1,1 @@
-module tuxedo
+module github.com/whoisclebs/tuxedo
