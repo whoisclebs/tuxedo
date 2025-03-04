@@ -37,7 +37,7 @@ func TestGet(t *testing.T) {
 	client := NewClient(5 * time.Second)
 	res, err := client.R().
 		EnableTrace().
-		SetHeader("Authorization", "Bearer token").
+		AddHeader("Authorization", "Bearer token").
 		Get(ts.URL)
 	assertNoError(t, err, "Error during GET request")
 	assetEqual(t, http.StatusOK, res.StatusCode, "Unexpected status code for POST")

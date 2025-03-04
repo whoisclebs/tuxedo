@@ -2,57 +2,42 @@ package tuxedo
 
 import (
 	"bytes"
-	"encoding/json"
 	"io"
 	"net/http"
 	"time"
 )
 
+// Client represents an HTTP client with custom configurations.
+//
+// It provides methods to send requests, apply middlewares, and handle responses.
 type Client struct {
 	httpClient *http.Client
 }
 
+// NewClient creates a new HTTP client with a specified timeout.
+//
+// Parameters:
+//   - timeout: Duration for request timeouts.
+//
+// Returns:
+//   - A new instance of Client.
 func NewClient(timeout time.Duration) *Client {
 	return &Client{
 		httpClient: &http.Client{Timeout: timeout},
 	}
 }
 
-type Request struct {
-	client      *Client
-	headers     map[string]string
-	body        []byte
-	enableTrace bool
-}
-
-func (c *Client) R() *Request {
-	return &Request{
-		client:  c,
-		headers: make(map[string]string),
-	}
-}
-
-func (r *Request) SetHeader(key, value string) *Request {
-	r.headers[key] = value
-	return r
-}
-
-func (r *Request) SetBody(body []byte) *Request {
-	r.body = body
-	return r
-}
-
-func (r *Request) EnableTrace() *Request {
-	r.enableTrace = true
-	return r
-}
-
-type Response struct {
-	StatusCode int
-	Headers    http.Header
-	Body       []byte
-}
-
+// execute sends an HTTP request with the given method and URL.
+//
+// It also applies headers, handles request bodies, and ensures proper response handling.
+//
+// Parameters:
+//   - method: HTTP method (GET, POST, etc.).
+//   - url: Target URL for the request.
+//
+// Returns:
+//   - *Response: A structured response containing status code, body, and headers.
+//   - error: Any error encountered during execution.
 func (r *Request) execute(method, url string) (*Response, error) {
 	req, err := http.NewRequest(method, url, bytes.NewBuffer(r.body))
 	if err != nil {
@@ -85,22 +70,50 @@ func (r *Request) execute(method, url string) (*Response, error) {
 	}, nil
 }
 
+// Get sends a GET request to the specified URL.
+//
+// Parameters:
+//   - url: Target URL for the request.
+//
+// Returns:
+//   - *Response: The HTTP response.
+//   - error: Any error encountered.
 func (r *Request) Get(url string) (*Response, error) {
 	return r.execute(http.MethodGet, url)
 }
 
+// Post sends a POST request to the specified URL.
+//
+// Parameters:
+//   - url: Target URL for the request.
+//
+// Returns:
+//   - *Response: The HTTP response.
+//   - error: Any error encountered.
 func (r *Request) Post(url string) (*Response, error) {
 	return r.execute(http.MethodPost, url)
 }
 
+// Put sends a PUT request to the specified URL.
+//
+// Parameters:
+//   - url: Target URL for the request.
+//
+// Returns:
+//   - *Response: The HTTP response.
+//   - error: Any error encountered.
 func (r *Request) Put(url string) (*Response, error) {
 	return r.execute(http.MethodPut, url)
 }
 
+// Delete sends a DELETE request to the specified URL.
+//
+// Parameters:
+//   - url: Target URL for the request.
+//
+// Returns:
+//   - *Response: The HTTP response.
+//   - error: Any error encountered.
 func (r *Request) Delete(url string) (*Response, error) {
 	return r.execute(http.MethodDelete, url)
-}
-
-func (res *Response) Unmarshal(target interface{}) error {
-	return json.Unmarshal(res.Body, target)
 }
